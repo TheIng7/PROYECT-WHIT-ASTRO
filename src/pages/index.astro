@@ -1,11 +1,113 @@
 ---
+// src/pages/index.astro
+import MainLayout from '../layouts/MainLayout.astro';
 import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { userStore } from '../stores/userStore';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<MainLayout>
+  <Welcome />
+  
+  <section class="dashboard">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Balance Actual</h3>
+        <div class="stat-value">${userStore.get().balance.toLocaleString()}</div>
+      </div>
+      
+      <div class="stat-card">
+        <h3>Apuestas Activas</h3>
+        <div class="stat-value">0</div>
+      </div>
+      
+      <div class="stat-card">
+        <h3>Ganancias Totales</h3>
+        <div class="stat-value">$0</div>
+      </div>
+    </div>
+    
+    <div class="quick-actions">
+      <h2>Acciones Rápidas</h2>
+      <div class="actions-grid">
+        <a href="/wallet/deposit" class="action-card">
+          <div class="action-icon">💰</div>
+          <span>Recargar Saldo</span>
+        </a>
+        
+        <a href="/deportes" class="action-card">
+          <div class="action-icon">🏈</div>
+          <span>Apuestas Deportivas</span>
+        </a>
+        
+        <a href="/casino" class="action-card">
+          <div class="action-icon">🎰</div>
+          <span>Juegos Casino</span>
+        </a>
+        
+        <a href="/promociones" class="action-card">
+          <div class="action-icon">🎁</div>
+          <span>Promociones</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .dashboard {
+    padding: 2rem 0;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  
+  .stat-card {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+  }
+  
+  .quick-actions h2 {
+    margin-bottom: 1.5rem;
+    color: white;
+  }
+  
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .action-card {
+    background: #2a2a2a;
+    padding: 2rem 1rem;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    transition: transform 0.3s;
+    border: 2px solid transparent;
+  }
+  
+  .action-card:hover {
+    transform: translateY(-5px);
+    border-color: #00c853;
+  }
+  
+  .action-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+</style>

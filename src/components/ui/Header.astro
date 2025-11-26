@@ -1,0 +1,132 @@
+---
+// src/components/ui/Header.astro
+import { userStore } from '../../stores/userStore';
+
+const user = userStore.get();
+---
+
+<header class="header">
+  <div class="header-container">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="/images/logo.svg" alt="Simulador Apuestas" width="40" height="40"/>
+      <span class="logo-text">BetSimulator</span>
+    </div>
+    
+    <!-- Navegación Principal -->
+    <nav class="main-nav">
+      <a href="/deportes" class="nav-link">🏈 Deportes</a>
+      <a href="/casino" class="nav-link">🎰 Casino</a>
+      <a href="/promociones" class="nav-link">🎁 Promociones</a>
+    </nav>
+    
+    <!-- User Info -->
+    <div class="user-section">
+      <div class="user-balance">
+        <span class="balance-label">Balance:</span>
+        <span class="balance-amount">${userStore.get().balance.toLocaleString()}</span>
+      </div>
+      <div class="user-avatar">
+        <img src={userStore.get().avatar} alt="Avatar" />
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Escuchar cambios en el store
+  if (typeof window !== 'undefined') {
+    window.addEventListener('userStoreUpdate', (event) => {
+      // Actualizar el balance en el header cuando cambie
+      const balanceElement = document.querySelector('.balance-amount');
+      if (balanceElement) {
+        balanceElement.textContent = `$${event.detail.balance.toLocaleString()}`;
+      }
+    });
+  }
+</script>
+
+<style>
+  .header {
+    background: #1a1a1a;
+    border-bottom: 2px solid #00c853;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  
+  .main-nav {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .nav-link {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+  
+  .nav-link:hover {
+    background: #333;
+  }
+  
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .user-balance {
+    background: #00c853;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+  
+  .user-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #00c853;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  
+  .logo-text {
+    background: linear-gradient(45deg, #00c853, #64dd17);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .logo img {
+    border-radius: 8px;
+  }
+
+</style>

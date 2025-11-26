@@ -1,0 +1,56 @@
+---
+// src/components/wallet/WalletBalance.astro
+import { userStore } from '../../stores/userStore';
+---
+
+<div class="wallet-balance">
+  <div class="balance-card">
+    <span class="balance-label">Balance Disponible</span>
+    <span class="balance-amount">${userStore.get().balance.toLocaleString()}</span>
+    <div class="balance-actions">
+      <button class="btn-deposit" onclick="openDepositModal()">Recargar</button>
+      <button class="btn-withdraw" onclick="openWithdrawModal()">Retirar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wallet-balance {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  
+  .balance-amount {
+    font-size: 2rem;
+    font-weight: bold;
+    display: block;
+    margin: 0.5rem 0;
+  }
+  
+  .balance-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .btn-deposit, .btn-withdraw {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .btn-deposit {
+    background: #00c853;
+    color: white;
+  }
+  
+  .btn-withdraw {
+    background: #ff3d00;
+    color: white;
+  }
+</style>

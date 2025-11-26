@@ -1,0 +1,66 @@
+---
+// src/components/ui/Sidebar.astro
+---
+
+<aside class="sidebar">
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <h3 class="section-title">Deportes</h3>
+      <a href="/deportes/futbol" class="nav-item">⚽ Fútbol</a>
+      <a href="/deportes/basket" class="nav-item">🏀 Baloncesto</a>
+      <a href="/deportes/tenis" class="nav-item">🎾 Tenis</a>
+      <a href="/deportes/boxeo" class="nav-item">🥊 Boxeo</a>
+    </div>
+    
+    <div class="nav-section">
+      <h3 class="section-title">Casino</h3>
+      <a href="/casino/slots" class="nav-item">🎰 Slots</a>
+      <a href="/casino/ruleta" class="nav-item">🎡 Ruleta</a>
+      <a href="/casino/blackjack" class="nav-item">♠️ Blackjack</a>
+    </div>
+    
+    <div class="nav-section">
+      <h3 class="section-title">Cuenta</h3>
+      <a href="/wallet" class="nav-item">💰 Billetera</a>
+      <a href="/perfil" class="nav-item">👤 Perfil</a>
+      <a href="/historial" class="nav-item">📊 Historial</a>
+    </div>
+  </nav>
+</aside>
+
+<style>
+  .sidebar {
+    width: 250px;
+    background: #1a1a1a;
+    padding: 2rem 1rem;
+    height: calc(100vh - 80px);
+    position: sticky;
+    top: 80px;
+  }
+  
+  .nav-section {
+    margin-bottom: 2rem;
+  }
+  
+  .section-title {
+    color: #00c853;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+  }
+  
+  .nav-item {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.25rem;
+    transition: background 0.3s;
+  }
+  
+  .nav-item:hover {
+    background: #333;
+  }
+</style>

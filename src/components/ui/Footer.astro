@@ -1,0 +1,341 @@
+---
+// src/components/ui/Footer.astro
+---
+
+<footer class="footer">
+  <div class="footer-container">
+    <!-- Sección Principal -->
+    <div class="footer-main">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span class="logo-icon">🎯</span>
+          <span class="logo-text">BetSimulator</span>
+        </div>
+        <p class="footer-description">
+          Plataforma educativa de simulación de apuestas deportivas. 
+          <strong>Sin dinero real involucrado.</strong>
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Twitter">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="Instagram">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" class="social-link" aria-label="YouTube">
+            <i class="fab fa-youtube"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <!-- Deportes -->
+        <div class="link-group">
+          <h4 class="link-group-title">🏈 Deportes</h4>
+          <ul class="link-list">
+            <li><a href="/deportes/futbol" class="footer-link">Fútbol</a></li>
+            <li><a href="/deportes/basket" class="footer-link">Baloncesto</a></li>
+            <li><a href="/deportes/tenis" class="footer-link">Tenis</a></li>
+            <li><a href="/deportes/boxeo" class="footer-link">Boxeo</a></li>
+            <li><a href="/deportes/beisbol" class="footer-link">Béisbol</a></li>
+          </ul>
+        </div>
+        
+        <!-- Casino -->
+        <div class="link-group">
+          <h4 class="link-group-title">🎰 Casino</h4>
+          <ul class="link-list">
+            <li><a href="/casino/slots" class="footer-link">Slots</a></li>
+            <li><a href="/casino/ruleta" class="footer-link">Ruleta</a></li>
+            <li><a href="/casino/blackjack" class="footer-link">Blackjack</a></li>
+            <li><a href="/casino/poker" class="footer-link">Póker</a></li>
+            <li><a href="/casino/bingo" class="footer-link">Bingo</a></li>
+          </ul>
+        </div>
+        
+        <!-- Información -->
+        <div class="link-group">
+          <h4 class="link-group-title">ℹ️ Información</h4>
+          <ul class="link-list">
+            <li><a href="/about" class="footer-link">Sobre Nosotros</a></li>
+            <li><a href="/como-funciona" class="footer-link">Cómo Funciona</a></li>
+            <li><a href="/preguntas-frecuentes" class="footer-link">Preguntas Frecuentes</a></li>
+            <li><a href="/tutoriales" class="footer-link">Tutoriales</a></li>
+            <li><a href="/contacto" class="footer-link">Contacto</a></li>
+          </ul>
+        </div>
+        
+        <!-- Legal -->
+        <div class="link-group">
+          <h4 class="link-group-title">⚖️ Legal</h4>
+          <ul class="link-list">
+            <li><a href="/terminos" class="footer-link">Términos de Uso</a></li>
+            <li><a href="/privacidad" class="footer-link">Política de Privacidad</a></li>
+            <li><a href="/cookies" class="footer-link">Política de Cookies</a></li>
+            <li><a href="/juego-responsable" class="footer-link">Juego Responsable</a></li>
+            <li><a href="/ayuda" class="footer-link">Centro de Ayuda</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Línea Separadora -->
+    <div class="footer-divider"></div>
+    
+    <!-- Sección Inferior -->
+    <div class="footer-bottom">
+      <div class="footer-disclaimer">
+        <div class="disclaimer-warning">
+          ⚠️ <strong>ADVERTENCIA IMPORTANTE:</strong> Esta es una plataforma de SIMULACIÓN EDUCATIVA. 
+          No se utilizan ni aceptan fondos reales. Todas las transacciones son con dinero virtual 
+          con fines de aprendizaje y entretenimiento.
+        </div>
+        <div class="age-warning">
+          🚫 Prohibido el acceso a menores de 18 años. Juega responsablemente.
+        </div>
+      </div>
+      
+      <div class="footer-copyright">
+        <div class="copyright-text">
+          © 2024 BetSimulator. Todos los derechos reservados. | 
+          <span class="version">v1.0.0</span>
+        </div>
+        <div class="payment-methods">
+          <span class="payment-text">Métodos de pago simulados:</span>
+          <div class="payment-icons">
+            <span class="payment-icon">💳</span>
+            <span class="payment-icon">📱</span>
+            <span class="payment-icon">🏦</span>
+            <span class="payment-icon">🔗</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    color: white;
+    margin-top: auto;
+    border-top: 3px solid #00c853;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem 1rem;
+  }
+  
+  .footer-main {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .logo-icon {
+    font-size: 2rem;
+  }
+  
+  .logo-text {
+    background: linear-gradient(45deg, #00c853, #64dd17);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .footer-description {
+    opacity: 0.8;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  
+  .social-links {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .social-link:hover {
+    background: #00c853;
+    transform: translateY(-2px);
+  }
+  
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+  
+  .link-group-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #00c853;
+  }
+  
+  .link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .link-list li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .footer-link {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+  
+  .footer-link:hover {
+    color: #00c853;
+  }
+  
+  .footer-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    margin: 2rem 0;
+  }
+  
+  .footer-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .footer-disclaimer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .disclaimer-warning, .age-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  
+  .age-warning {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: rgba(244, 67, 54, 0.3);
+  }
+  
+  .footer-copyright {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .copyright-text {
+    opacity: 0.7;
+    font-size: 0.9rem;
+  }
+  
+  .version {
+    color: #00c853;
+    font-weight: bold;
+  }
+  
+  .payment-methods {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .payment-text {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+  
+  .payment-icons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .payment-icon {
+    font-size: 1.2rem;
+    opacity: 0.8;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .footer-links {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .footer-main {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .footer-links {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .footer-copyright {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .footer-container {
+      padding: 2rem 1rem 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .footer-main {
+      gap: 1.5rem;
+    }
+    
+    .link-group {
+      text-align: center;
+    }
+    
+    .social-links {
+      justify-content: center;
+    }
+  }
+</style>
