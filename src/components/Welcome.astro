@@ -11,34 +11,10 @@ const user = userStore.get();
       <div class="welcome-badge">🎮 SIMULADOR EDUCATIVO</div>
       <h1>¡Bienvenido a <span class="brand">BetSimulator</span>! 🎯</h1>
       <p class="welcome-subtitle">
-        La plataforma de simulación de apuestas más realista para aprender sin riesgos
+        La plataforma de simulación de apuestas más realista para aprender sin riesgos.
       </p>
       
-      <div class="welcome-stats">
-        <div class="stat-item">
-          <div class="stat-icon">👤</div>
-          <div class="stat-info">
-            <span class="stat-label">Usuario</span>
-            <span class="stat-value">{userStore.get().username}</span>
-          </div>
-        </div>
-        
-        <div class="stat-item">
-          <div class="stat-icon">🏆</div>
-          <div class="stat-info">
-            <span class="stat-label">Nivel</span>
-            <span class="stat-value">{userStore.get().level}</span>
-          </div>
-        </div>
-        
-        <div class="stat-item">
-          <div class="stat-icon">💰</div>
-          <div class="stat-info">
-            <span class="stat-label">Balance Inicial</span>
-            <span class="stat-value">${userStore.get().balance.toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
+      
       
       <div class="welcome-features">
         <h3>✨ Características Principales</h3>

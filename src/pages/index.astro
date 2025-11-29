@@ -8,49 +8,7 @@ import { userStore } from '../stores/userStore';
 <MainLayout>
   <Welcome />
   
-  <section class="dashboard">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <h3>Balance Actual</h3>
-        <div class="stat-value">${userStore.get().balance.toLocaleString()}</div>
-      </div>
-      
-      <div class="stat-card">
-        <h3>Apuestas Activas</h3>
-        <div class="stat-value">0</div>
-      </div>
-      
-      <div class="stat-card">
-        <h3>Ganancias Totales</h3>
-        <div class="stat-value">$0</div>
-      </div>
-    </div>
-    
-    <div class="quick-actions">
-      <h2>Acciones Rápidas</h2>
-      <div class="actions-grid">
-        <a href="/wallet/deposit" class="action-card">
-          <div class="action-icon">💰</div>
-          <span>Recargar Saldo</span>
-        </a>
-        
-        <a href="/deportes" class="action-card">
-          <div class="action-icon">🏈</div>
-          <span>Apuestas Deportivas</span>
-        </a>
-        
-        <a href="/casino" class="action-card">
-          <div class="action-icon">🎰</div>
-          <span>Juegos Casino</span>
-        </a>
-        
-        <a href="/promociones" class="action-card">
-          <div class="action-icon">🎁</div>
-          <span>Promociones</span>
-        </a>
-      </div>
-    </div>
-  </section>
+  
 </MainLayout>
 
 <style>

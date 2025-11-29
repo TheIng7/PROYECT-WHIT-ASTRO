@@ -1,132 +1,207 @@
 ---
-// src/components/ui/Header.astro
+// src/components/ui/Header.astro - VERSIÓN CORREGIDA
 import { userStore } from '../../stores/userStore';
+import { authStore } from '../../stores/authStore'; // NUEVO
+import AuthModal from '../auth/AuthModal.astro';
 
-const user = userStore.get();
+// USAR authStore en lugar de userStore para determinar autenticación
+const shouldShowAuth = authStore.shouldShowAuthButtons();
+const userDisplayInfo = authStore.getUserDisplayInfo();
+
+// Estado para el modal
+let isAuthModalOpen = false;
+let authMode = 'login';
 ---
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <header class="header">
   <div class="header-container">
     <!-- Logo -->
     <div class="logo">
-      <img src="/images/logo.svg" alt="Simulador Apuestas" width="40" height="40"/>
+      <img src="/images/logo.svg" alt="Simulador Apuestas" width="120" height="120"/>
       <span class="logo-text">BetSimulator</span>
     </div>
     
     <!-- Navegación Principal -->
-    <nav class="main-nav">
-      <a href="/deportes" class="nav-link">🏈 Deportes</a>
-      <a href="/casino" class="nav-link">🎰 Casino</a>
-      <a href="/promociones" class="nav-link">🎁 Promociones</a>
-    </nav>
     
-    <!-- User Info -->
+    
+    <!-- User Section - VERSIÓN CORREGIDA -->
     <div class="user-section">
-      <div class="user-balance">
-        <span class="balance-label">Balance:</span>
-        <span class="balance-amount">${userStore.get().balance.toLocaleString()}</span>
-      </div>
-      <div class="user-avatar">
-        <img src={userStore.get().avatar} alt="Avatar" />
-      </div>
+      {!shouldShowAuth && userDisplayInfo ? (
+        <!-- Usuario AUTENTICADO -->
+        <div class="user-info">
+          <div class="user-balance">
+            <span class="balance-label">Balance:</span>
+            <span class="balance-amount" id="balanceDisplay">
+              ${userDisplayInfo.balance.toLocaleString()}
+            </span>
+          </div>
+          <div class="user-avatar">
+            <img src="/images/default-avatar.png" alt="Avatar" />
+          </div>
+        </div>
+      ) : (
+        <!-- Usuario NO autenticado - MOSTRAR BOTONES -->
+        <div class="auth-buttons">
+          <button class="btn btn-outline" onclick="openAuthModal('login')">
+            Iniciar Sesión
+          </button>
+          <button class="btn btn-primary" onclick="openAuthModal('register')">
+            Registrarse
+          </button>
+        </div>
+      )}
     </div>
   </div>
 </header>
 
+<!-- Modal de autenticación -->
+<AuthModal 
+  isOpen={isAuthModalOpen} 
+  mode={authMode}
+  onClose={() => isAuthModalOpen = false}
+/>
+
 <script>
-  // Escuchar cambios en el store
-  if (typeof window !== 'undefined') {
-    window.addEventListener('userStoreUpdate', (event) => {
-      // Actualizar el balance en el header cuando cambie
-      const balanceElement = document.querySelector('.balance-amount');
-      if (balanceElement) {
-        balanceElement.textContent = `$${event.detail.balance.toLocaleString()}`;
-      }
-    });
-  }
+  // DEBUG: Verificar estado de autenticación
+  console.log('¿Mostrar botones auth?', {shouldShowAuth});
+  console.log('Info usuario:', {userDisplayInfo});
+
+  // Control del modal
+  window.openAuthModal = (mode) => {
+    console.log('Abriendo modal en modo:', mode);
+    const event = new CustomEvent('openAuthModal', { detail: { mode } });
+    window.dispatchEvent(event);
+  };
+
+  window.closeAuthModal = () => {
+    const event = new CustomEvent('closeAuthModal');
+    window.dispatchEvent(event);
+  };
 </script>
 
+<!-- (Mantener los mismos estilos) -->
 <style>
   .header {
-    background: #1a1a1a;
-    border-bottom: 2px solid #00c853;
-    padding: 1rem 0;
+    background: #0d1721;
+    border-bottom: 2px solid #00e5ff;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
+    font-family: 'Poppins', sans-serif;
   }
-  
+
   .header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: bold;
-    font-size: 1.5rem;
-  }
-  
-  .main-nav {
-    display: flex;
-    gap: 2rem;
-  }
-  
-  .nav-link {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    transition: background 0.3s;
-  }
-  
-  .nav-link:hover {
-    background: #333;
-  }
-  
-  .user-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .user-balance {
-    background: #00c853;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: bold;
-  }
-  
-  .user-avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #00c853;
   }
 
+  /* LOGO */
   .logo {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-weight: bold;
-    font-size: 1.5rem;
-  }
-  
-  .logo-text {
-    background: linear-gradient(45deg, #00c853, #64dd17);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .logo img {
-    border-radius: 8px;
   }
 
+  .logo-text {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* USER SECTION */
+  .auth-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* BOTON BASE */
+  .btn {
+    padding: 0.8rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.6rem;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease-in-out;
+  }
+
+  /* BOTÓN CONTORNO */
+  .btn-outline {
+    background: transparent;
+    border: 2px solid #00e5ff;
+    color: #00e5ff;
+  }
+
+  .btn-outline:hover {
+    background: #00e5ff;
+    color: #0d1721;
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px #00e5ff;
+  }
+
+  /* BOTÓN PRINCIPAL */
+  .btn-primary {
+    background: #2979ff;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #5393ff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px #2979ff;
+  }
+
+  /* Usuario */
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+  }
+
+  .balance-label {
+    font-weight: 600;
+  }
+
+  .balance-amount {
+    color: #00e5ff;
+    font-weight: 700;
+  }
+
+  .user-avatar img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
 </style>
+
+<script>
+  // Script simple para probar la funcionalidad
+  document.addEventListener('DOMContentLoaded', () => {
+    // Agregar event listeners a los botones
+    const loginBtn = document.querySelector('.btn-outline');
+    const registerBtn = document.querySelector('.btn-primary');
+    
+    if (loginBtn) {
+      loginBtn.addEventListener('click', () => {
+        //alert('Botón Iniciar Sesión funciona! 🎉\n\nRedirigiendo ...');
+        window.location.href = '/auth/login';
+      });
+    }
+    
+    if (registerBtn) {
+      registerBtn.addEventListener('click', () => {
+        //alert('Botón Registrarse funciona! 🎉\n\nRedirigiendo ...');
+        window.location.href = '/auth/register';
+      });
+    }
+  });
+</script>

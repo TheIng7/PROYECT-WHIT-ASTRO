@@ -1,0 +1,83 @@
+---
+// src/pages/auth/register.astro
+import MainLayout from '../../layouts/MainLayout.astro';
+import RegisterForm from '../../components/auth/RegisterForm.astro';
+---
+
+<MainLayout title="Registrarse - BetSimulator">
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Crear Cuenta</h1>
+        <p>Únete a BetSimulator y recibe $1,000,000 COP de bienvenida</p>
+      </div>
+      
+      <RegisterForm />
+      
+      <div class="auth-security">
+        <div class="security-badge">
+          <span class="badge-icon">🔒</span>
+          <span>Plataforma 100% segura - Solo simulación</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .auth-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1f2c 0%, #2d3748 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .auth-container {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-header h1 {
+    color: #1a1f2c;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+  }
+
+  .auth-header p {
+    color: #10b981;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .auth-security {
+    margin-top: 1.5rem;
+  }
+
+  .security-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 0.5rem;
+    color: #166534;
+    font-size: 0.875rem;
+  }
+
+  .badge-icon {
+    font-size: 1rem;
+  }
+</style>

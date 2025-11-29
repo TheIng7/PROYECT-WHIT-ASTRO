@@ -1,0 +1,332 @@
+---
+// src/components/features/UserStats.astro
+import { bettingStore } from '../../stores/bettingStore';
+import { authStore } from '../../stores/authStore';
+
+export interface Props {
+  stats?: {
+    totalBets: number;
+    wonBets: number;
+    lostBets: number;
+    winRate: number;
+    currentStreak: number;
+  };
+}
+
+const { stats } = Astro.props;
+
+// Obtener estadísticas si no se pasan como prop
+const userStats = stats || bettingStore.getUserStats();
+const currentUser = authStore.getCurrentUser();
+
+// Calcular progreso y estados
+const winRate = userStats.winRate;
+const streak = userStats.currentStreak;
+const level = currentUser?.level || 'Novato';
+
+// Determinar color basado en win rate
+const getWinRateColor = (rate) => {
+  if (rate >= 60) return '#00c853'; // Excelente - Verde
+  if (rate >= 45) return '#f59e0b'; // Bueno - Naranja  
+  if (rate >= 30) return '#ef4444'; // Regular - Rojo
+  return '#6b7280'; // Bajo - Gris
+};
+
+const getWinRateLabel = (rate) => {
+  if (rate >= 60) return '🔥 Excelente';
+  if (rate >= 45) return '👍 Bueno';
+  if (rate >= 30) return '⚠️ Regular';
+  return '💤 Bajo';
+};
+
+const getStreakIcon = (streak) => {
+  if (streak >= 5) return '🔥🔥';
+  if (streak >= 3) return '🔥';
+  if (streak >= 1) return '⚡';
+  return '➖';
+};
+
+const getLevelProgress = (level) => {
+  const levels = {
+    'Novato': { progress: 25, next: 'Intermedio' },
+    'Intermedio': { progress: 50, next: 'Avanzado' },
+    'Avanzado': { progress: 75, next: 'Experto' },
+    'Experto': { progress: 100, next: 'Leyenda' },
+    'Leyenda': { progress: 100, next: 'Máximo' }
+  };
+  return levels[level] || { progress: 0, next: 'Novato' };
+};
+
+const levelInfo = getLevelProgress(level);
+---
+
+<div class="user-stats">
+  <!-- Header -->
+  <div class="stats-header">
+    <h3>📊 Mi Rendimiento</h3>
+    <div class="user-level">
+      <span class="level-badge">{level}</span>
+    </div>
+  </div>
+
+  <!-- Barra de Progreso de Nivel -->
+  <div class="level-progress">
+    <div class="progress-info">
+      <span>Progreso a {levelInfo.next}</span>
+      <span>{levelInfo.progress}%</span>
+    </div>
+    <div class="progress-bar">
+      <div 
+        class="progress-fill" 
+        style={`width: ${levelInfo.progress}%; background: ${getWinRateColor(winRate)};`}
+      ></div>
+    </div>
+  </div>
+
+  <!-- Win Rate con Barra de Progreso -->
+  <div class="win-rate-section">
+    <div class="win-rate-header">
+      <span>Win Rate</span>
+      <span class="win-rate-value" style={`color: ${getWinRateColor(winRate)}`}>
+        {winRate}%
+      </span>
+    </div>
+    <div class="win-rate-bar">
+      <div 
+        class="win-rate-fill" 
+        style={`width: ${Math.min(winRate, 100)}%; background: ${getWinRateColor(winRate)};`}
+      ></div>
+    </div>
+    <div class="win-rate-label">
+      <small>{getWinRateLabel(winRate)}</small>
+    </div>
+  </div>
+
+  <!-- Racha Actual -->
+  <div class="streak-section">
+    <div class="streak-info">
+      <span class="streak-icon">{getStreakIcon(streak)}</span>
+      <div class="streak-details">
+        <span class="streak-value">{streak} {streak === 1 ? 'victoria' : 'victorias'}</span>
+        <span class="streak-label">Racha actual</span>
+      </div>
+    </div>
+    {streak >= 3 && (
+      <div class="streak-bonus">
+        <small>+{streak * 5}% de confianza</small>
+      </div>
+    )}
+  </div>
+
+  <!-- Consejos Basados en Rendimiento -->
+  {userStats.totalBets > 0 && (
+    <div class="performance-tips">
+      <h4>💡 Tips de Mejora</h4>
+      {winRate < 30 && (
+        <p>Enfócate en deportes que conozcas mejor y apuesta montos pequeños.</p>
+      )}
+      {winRate >= 30 && winRate < 45 && (
+        <p>Buen progreso! Analiza tus apuestas ganadoras para replicar estrategias.</p>
+      )}
+      {winRate >= 45 && winRate < 60 && (
+        <p>Excelente rendimiento! Considera aumentar gradualmente tus montos.</p>
+      )}
+      {winRate >= 60 && (
+        <p>🔥 Eres un experto! Mantén tu disciplina y gestiona bien tu bankroll.</p>
+      )}
+    </div>
+  )}
+
+  
+</div>
+
+<style>
+  .user-stats {
+    background: #2d2d2d;
+    border: 1px solid #404040;
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .stats-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .level-badge {
+    background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .level-progress {
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    color: #a0a0a0;
+  }
+
+  .progress-bar {
+    background: #404040;
+    border-radius: 1rem;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 1rem;
+    transition: width 0.5s ease;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #404040;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    border-color: #00c853;
+    transform: translateY(-2px);
+  }
+
+  .stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: #a0a0a0;
+  }
+
+  .win-rate-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .win-rate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .win-rate-header span:first-child {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+  }
+
+  .win-rate-value {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .win-rate-bar {
+    background: #404040;
+    border-radius: 1rem;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .win-rate-fill {
+    height: 100%;
+    border-radius: 1rem;
+    transition: all 0.5s ease;
+  }
+
+  .win-rate-label {
+    text-align: center;
+  }
+
+  .win-rate-label small {
+    color: #a0a0a0;
+    font-size: 0.75rem;
+  }
+
+  .streak-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid #404040;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .streak-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .streak-icon {
+    font-size: 1.5rem;
+  }
+
+  .streak-details {
+    flex: 1;
+  }
+
+  .streak-value {
+    display: block;
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 1rem;
+  }
+
+  .streak-label {
+    font-size: 0.8rem;
+    color: #a0a0a0;
+  }
+
+  .streak-bonus {
+    text-align: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #404040;
+  }
+
+  .streak-bonus small {
+    color: #00c853;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .additional-stats {
+    margin-bottom: 1.5rem;
+  }

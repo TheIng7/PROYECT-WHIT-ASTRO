@@ -1,0 +1,874 @@
+---
+// src/components/features/BetSlip.astro
+const { activeBets: initialBets = [] } = Astro.props;
+---
+
+<div class="betslip">
+  <!-- Header del BetSlip -->
+  <header class="betslip-header">
+    <div class="header-title">
+      <h3>📋 BetSlip</h3>
+      <span class="bet-count">0</span>
+    </div>
+    <button class="close-betslip" onclick="window.toggleBetSlip(false)" aria-label="Cerrar BetSlip">
+      ×
+    </button>
+  </header>
+
+  <!-- Contenido principal -->
+  <div class="betslip-content">
+    <!-- Estado vacío -->
+    <div class="empty-betslip">
+      <div class="empty-icon">🎯</div>
+      <p>No hay apuestas activas</p>
+      <small>Selecciona cuotas para comenzar</small>
+    </div>
+    
+    <!-- Lista de apuestas -->
+    <div class="bets-list" style="display: none;">
+      <!-- Las apuestas se agregarán dinámicamente aquí -->
+    </div>
+  </div>
+
+  <!-- Footer con totales -->
+  <footer class="betslip-footer" style="display: none;">
+    <div class="totals-section">
+      <div class="total-line">
+        <span class="total-label">Total apostado:</span>
+        <span class="total-value">$0</span>
+      </div>
+      <div class="total-line potential">
+        <span class="total-label">Ganancia total:</span>
+        <span class="total-value">$0</span>
+      </div>
+    </div>
+    
+    <button class="place-bet-btn">
+      <span class="btn-icon">🎯</span>
+      Apostar $0
+    </button>
+  </footer>
+</div>
+
+<script>
+// Sistema mejorado de BetSlip - CORREGIDO
+class BetSlipManager {
+  constructor() {
+    this.bets = [];
+    this.init();
+  }
+
+  init() {
+    console.log('🎯 BetSlip Manager inicializado');
+    this.setupEventListeners();
+    this.setupCloseButton();
+    this.setupEventDelegation(); // ✅ NUEVO: Event delegation para botones dinámicos
+  }
+
+  setupEventListeners() {
+    // Escuchar nuevas selecciones de odds
+    window.addEventListener('oddsSelected', (event) => {
+      console.log('📥 Nueva odds recibida:', event.detail);
+      this.addBet(event.detail);
+    });
+
+    // Escuchar actualizaciones externas del dashboard
+    window.addEventListener('betslipUpdated', (event) => {
+      console.log('🔄 BetSlip actualizado desde dashboard:', event.detail);
+      if (event.detail && event.detail.bets) {
+        this.bets = event.detail.bets;
+        this.render();
+      }
+    });
+
+    // Escuchar limpieza forzada
+    window.addEventListener('clearBetslip', () => {
+      console.log('🧹 Limpiando BetSlip...');
+      this.bets = [];
+      this.render();
+    });
+  }
+
+  setupEventDelegation() {
+    // ✅ EVENT DELEGATION para elementos dinámicos
+    document.addEventListener('click', (event) => {
+      // Manejar clicks en botones eliminar
+      if (event.target.closest('.remove-bet-btn')) {
+        const betItem = event.target.closest('.bet-item');
+        if (betItem) {
+          const betId = betItem.dataset.betId;
+          console.log('🗑️ Eliminando apuesta via delegation:', betId);
+          this.removeBet(betId);
+        }
+        return;
+      }
+
+      // Manejar cambios en inputs de monto
+      if (event.target.classList.contains('stake-amount-input')) {
+        const betItem = event.target.closest('.bet-item');
+        if (betItem && event.target.value !== undefined) {
+          const betId = betItem.dataset.betId;
+          console.log('💰 Actualizando stake via delegation:', betId, event.target.value);
+          this.updateStake(betId, event.target.value);
+        }
+      }
+    });
+  }
+
+  setupCloseButton() {
+    const closeBtn = document.querySelector('.close-betslip');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        if (window.toggleBetSlip) {
+          window.toggleBetSlip(false);
+        }
+      });
+    }
+  }
+
+  addBet(betData) {
+    // Verificar si la apuesta ya existe
+    const existingBet = this.bets.find(bet => 
+      bet.eventId === betData.eventId && bet.option === betData.option
+    );
+
+    if (!existingBet) {
+      const newBet = {
+        id: 'bet-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+        eventId: betData.eventId,
+        eventName: betData.eventName,
+        option: betData.option,
+        odds: parseFloat(betData.odds) || 1,
+        type: 'Sencilla',
+        stake: "",
+        timestamp: Date.now()
+      };
+
+      this.bets.push(newBet);
+      console.log('✅ Apuesta agregada. Total:', this.bets.length);
+      this.render();
+      
+      // Mostrar BetSlip si está oculto
+      if (window.betSlipVisible === false) {
+        window.toggleBetSlip(true);
+      }
+
+      // Animación de entrada
+      this.animateNewBet(newBet.id);
+
+      // ✅ Notificar al dashboard del cambio
+      this.notifyDashboardUpdate();
+    }
+  }
+
+  removeBet(betId) {
+    console.log('🗑️ Iniciando eliminación de apuesta:', betId);
+    
+    // Encontrar la apuesta antes de eliminarla
+    const betToRemove = this.bets.find(bet => bet.id === betId);
+    if (!betToRemove) {
+      console.log('❌ Apuesta no encontrada:', betId);
+      return;
+    }
+
+    // Animación de salida
+    this.animateRemoveBet(betId);
+    
+    setTimeout(() => {
+      this.bets = this.bets.filter(bet => bet.id !== betId);
+      console.log('✅ Apuesta eliminada. Restantes:', this.bets.length);
+      this.render();
+
+      // ✅ Notificar al dashboard de la eliminación
+      window.dispatchEvent(new CustomEvent('betRemoved', {
+        detail: { betId }
+      }));
+
+      // ✅ Notificar actualización general
+      this.notifyDashboardUpdate();
+
+      // Ocultar BetSlip si no hay apuestas
+      if (this.bets.length === 0) {
+        setTimeout(() => {
+          if (window.toggleBetSlip) {
+            window.toggleBetSlip(false);
+          }
+        }, 1000);
+      }
+    }, 300);
+  }
+
+  updateStake(betId, newStake) {
+    const stake = parseInt(newStake) || 0;
+    const bet = this.bets.find(b => b.id === betId);
+    
+    if (bet) {
+      bet.stake = stake;
+      console.log('💰 Stake actualizado:', betId, stake);
+      this.updateBetDisplay(betId);
+      this.updateTotals();
+
+      // ✅ Notificar al dashboard
+      window.dispatchEvent(new CustomEvent('betStakeUpdated', {
+        detail: { betId, stake }
+      }));
+
+      // ✅ Notificar actualización general
+      this.notifyDashboardUpdate();
+    }
+  }
+
+  notifyDashboardUpdate() {
+    // Notificar al dashboard del estado actual
+    window.dispatchEvent(new CustomEvent('betslipStateUpdated', {
+      detail: { 
+        bets: this.bets,
+        totalBets: this.bets.length 
+      }
+    }));
+  }
+
+  render() {
+    const betsList = document.querySelector('.bets-list');
+    const emptyState = document.querySelector('.empty-betslip');
+    const footer = document.querySelector('.betslip-footer');
+    const betCount = document.querySelector('.bet-count');
+
+    if (this.bets.length === 0) {
+      // Mostrar estado vacío
+      if (betsList) betsList.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'flex';
+      if (footer) footer.style.display = 'none';
+      if (betCount) betCount.textContent = '0';
+    } else {
+      // Mostrar apuestas
+      if (emptyState) emptyState.style.display = 'none';
+      if (footer) footer.style.display = 'block';
+      if (betsList) betsList.style.display = 'block';
+      if (betCount) betCount.textContent = this.bets.length.toString();
+
+      // Renderizar apuestas
+      this.renderBets();
+      this.updateTotals();
+    }
+  }
+
+  renderBets() {
+    const betsList = document.querySelector('.bets-list');
+    if (!betsList) return;
+
+    betsList.innerHTML = this.bets.map(bet => `
+      <div class="bet-item" data-bet-id="${bet.id}">
+        <!-- Header de la apuesta -->
+        <div class="bet-header">
+          <div class="bet-type-badge">
+            <span class="badge-dot"></span>
+            ${bet.type}
+          </div>
+          <button class="remove-bet-btn" data-bet-id="${bet.id}" 
+                  aria-label="Eliminar apuesta" title="Eliminar apuesta">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M12.5 3.5L3.5 12.5M3.5 3.5L12.5 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Detalles del evento -->
+        <div class="bet-details">
+          <div class="event-info">
+            <h4 class="event-name">${bet.eventName}</h4>
+            <div class="selection-info">
+              <span class="selection-option">${bet.option}</span>
+              <span class="selection-odds">@ ${bet.odds}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Línea divisoria -->
+        <div class="bet-divider"></div>
+
+        <!-- Input de monto -->
+        <div class="stake-section">
+          <label class="stake-label">Monto a apostar</label>
+          <div class="stake-input-group">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="number" 
+              value="${bet.stake}" 
+              min="1000" 
+              max="1000000"
+              step="1000"
+              class="stake-amount-input"
+              placeholder="0"
+              data-bet-id="${bet.id}"
+            />
+          </div>
+        </div>
+
+        <!-- Línea divisoria -->
+        <div class="bet-divider"></div>
+
+        <!-- Ganancia potencial -->
+        <div class="payout-section">
+          <div class="payout-info">
+            <span class="payout-label">Ganancia potencial</span>
+            <span class="payout-value">$${(bet.odds * bet.stake).toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  updateBetDisplay(betId) {
+    const betElement = document.querySelector(`[data-bet-id="${betId}"]`);
+    if (!betElement) return;
+
+    const bet = this.bets.find(b => b.id === betId);
+    if (!bet) return;
+
+    const payoutElement = betElement.querySelector('.payout-value');
+    if (payoutElement) {
+      payoutElement.textContent = `$${(bet.odds * bet.stake).toLocaleString()}`;
+    }
+  }
+
+  updateTotals() {
+    const totalStake = this.bets.reduce((sum, bet) => sum + bet.stake, 0);
+    const totalPayout = this.bets.reduce((sum, bet) => sum + (bet.odds * bet.stake), 0);
+
+    const totalStakeElement = document.querySelector('.total-line:not(.potential) .total-value');
+    const totalPayoutElement = document.querySelector('.total-line.potential .total-value');
+    const placeBetBtn = document.querySelector('.place-bet-btn');
+
+    if (totalStakeElement) {
+      totalStakeElement.textContent = `$${totalStake.toLocaleString()}`;
+    }
+    if (totalPayoutElement) {
+      totalPayoutElement.textContent = `$${totalPayout.toLocaleString()}`;
+    }
+    if (placeBetBtn) {
+      placeBetBtn.innerHTML = `<span class="btn-icon">🎯</span> Apostar $${totalStake.toLocaleString()}`;
+    }
+  }
+
+  // ✅ NUEVO: Método para limpiar completamente el BetSlip
+  clearAllBets() {
+    console.log('🧹 Limpiando todas las apuestas');
+    this.bets = [];
+    this.render();
+    
+    // Notificar al dashboard
+    window.dispatchEvent(new CustomEvent('betslipCleared'));
+  }
+
+  placeBets() {
+    const validBets = this.bets.filter(bet => bet.stake > 0);
+    
+    if (validBets.length === 0) {
+      this.showMessage('Por favor ingresa montos válidos para apostar', 'error');
+      return;
+    }
+
+    const totalStake = validBets.reduce((sum, bet) => sum + bet.stake, 0);
+
+    // ✅ PRIMERO: Notificar al dashboard para procesar apuestas
+    window.dispatchEvent(new CustomEvent('betsPlaced', {
+      detail: { bets: validBets }
+    }));
+
+    this.showMessage(`¡Apuesta realizada por $${totalStake.toLocaleString()}!`, 'success');
+
+    // ✅ SEGUNDO: Limpiar inmediatamente el BetSlip
+    this.clearAllBets();
+
+    // ✅ TERCERO: Ocultar BetSlip después de un tiempo
+    setTimeout(() => {
+      if (window.toggleBetSlip) {
+        window.toggleBetSlip(false);
+      }
+    }, 2000);
+  }
+
+  animateNewBet(betId) {
+    const betElement = document.querySelector(`[data-bet-id="${betId}"]`);
+    if (betElement) {
+      betElement.style.transform = 'translateX(20px)';
+      betElement.style.opacity = '0';
+      
+      setTimeout(() => {
+        betElement.style.transform = 'translateX(0)';
+        betElement.style.opacity = '1';
+      }, 10);
+    }
+  }
+
+  animateRemoveBet(betId) {
+    const betElement = document.querySelector(`[data-bet-id="${betId}"]`);
+    if (betElement) {
+      betElement.style.transform = 'translateX(20px)';
+      betElement.style.opacity = '0';
+    }
+  }
+
+  showMessage(message, type = 'info') {
+    // Crear elemento de mensaje
+    const messageEl = document.createElement('div');
+    messageEl.className = `bet-message ${type}`;
+    messageEl.textContent = message;
+    
+    document.body.appendChild(messageEl);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+      messageEl.remove();
+    }, 3000);
+  }
+}
+
+// ✅ Inicialización mejorada
+let betSlipManager;
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Inicializando BetSlip Manager...');
+  betSlipManager = new BetSlipManager();
+  
+  // Configurar el botón de apostar
+  const placeBetBtn = document.querySelector('.place-bet-btn');
+  if (placeBetBtn) {
+    placeBetBtn.addEventListener('click', function() {
+      console.log('🎯 Botón apostar clickeado');
+      betSlipManager.placeBets();
+    });
+  }
+
+  // ✅ Hacer métodos disponibles globalmente para debugging
+  window.betSlipManager = betSlipManager;
+  window.clearBetSlip = () => betSlipManager.clearAllBets();
+  window.getCurrentBets = () => betSlipManager.bets;
+});
+
+// ✅ Hacer funciones disponibles globalmente
+window.BetSlipManager = BetSlipManager;
+</script>
+
+<style>
+/* (Los estilos se mantienen igual que en la versión anterior) */
+.betslip {
+  background: rgba(17, 17, 17, 0.95);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  height: fit-content;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.betslip-header {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.betslip-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.bet-count {
+  background: #000;
+  color: #00ff88;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  min-width: 24px;
+  text-align: center;
+}
+
+.close-betslip {
+  background: rgba(0, 0, 0, 0.3);
+  color: #000;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.close-betslip:hover {
+  background: rgba(0, 0, 0, 0.5);
+  transform: scale(1.1);
+}
+
+.betslip-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.empty-betslip {
+  text-align: center;
+  padding: 3rem 1rem;
+  opacity: 0.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.empty-betslip p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.empty-betslip small {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.bets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bet-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.bet-item:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 255, 136, 0.1);
+}
+
+.bet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.bet-type-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  background: #00ff88;
+  border-radius: 50%;
+}
+
+.remove-bet-btn {
+  background: rgba(255, 68, 68, 0.1);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.remove-bet-btn:hover {
+  background: #ff4444;
+  color: white;
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.bet-details {
+  margin-bottom: 1rem;
+}
+
+.event-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.event-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.selection-option {
+  font-weight: 500;
+  color: #fff;
+}
+
+.selection-odds {
+  color: #00ff88;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.bet-divider {
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%);
+  margin: 1rem 0;
+}
+
+.stake-section {
+  margin-bottom: 1rem;
+}
+
+.stake-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.9;
+  color: #fff;
+}
+
+.stake-input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.stake-input-group:focus-within {
+  border-color: #00ff88;
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.currency-symbol {
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #00ff88;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stake-amount-input {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 0.75rem 1rem;
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
+  outline: none;
+  min-width: 0;
+}
+
+.stake-amount-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.payout-section {
+  margin-top: 0.5rem;
+}
+
+.payout-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.payout-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.9;
+  color: #fff;
+}
+
+.payout-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #00ff88;
+}
+
+.betslip-footer {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.totals-section {
+  margin-bottom: 1.25rem;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.total-line.potential {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.total-label {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.9;
+  color: #fff;
+}
+
+.total-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.total-line.potential .total-value {
+  color: #00ff88;
+  font-size: 1.3rem;
+}
+
+.place-bet-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  color: #000;
+  border: none;
+  padding: 1.25rem 2rem;
+  border-radius: 14px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.place-bet-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+}
+
+.place-bet-btn:active {
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: 1.3rem;
+}
+
+.bet-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+}
+
+.bet-message.success {
+  background: #00ff88;
+  color: #000;
+}
+
+.bet-message.error {
+  background: #ff4444;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.betslip-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.betslip-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.betslip-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.betslip-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+</style>

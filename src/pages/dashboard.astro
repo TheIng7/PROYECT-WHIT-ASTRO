@@ -1,0 +1,619 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import { authStore } from "../stores/authStore";
+import { bettingStore } from "../stores/bettingStore";
+import SportsEvents from "../components/features/SportsEvents.astro";
+import BetSlip from "../components/features/BetSlip.astro";
+import UserStats from "../components/features/UserStats.astro";
+
+// Verificar autenticación
+const user = authStore.getCurrentUser();
+if (!user) {
+  if (typeof window !== "undefined") {
+    window.location.href = "/auth/login";
+  }
+}
+
+// Obtener datos iniciales del servidor
+const serverSports = bettingStore.getSports();
+const activeBets = bettingStore.getActiveBets();
+const userStats = bettingStore.getUserStats();
+const betHistory = bettingStore.getBetHistory();
+
+// Estado para controlar visibilidad del BetSlip
+const shouldShowBetSlip = activeBets.length > 0;
+
+// Función helper para el historial
+function getStatusText(status) {
+  const statusMap = {
+    active: "Activa",
+    won: "Ganada",
+    lost: "Perdida",
+    pending: "Pendiente",
+  };
+  return statusMap[status] || status;
+}
+
+// Estado para el deporte seleccionado (servidor)
+let selectedSport = serverSports[0] || "fútbol";
+---
+
+<script define:vars={{ shouldShowBetSlip, serverSports }}>
+  // Variables globales - SINTAXIS CORRECTA PARA ASTRO
+  window.betSlipVisible = shouldShowBetSlip;
+
+  // Función debug
+  window.debugShowBetSlip = function () {
+    console.log("🐛 Debug: Forzando mostrar BetSlip");
+    window.toggleBetSlip(true);
+  };
+
+  // Función para cambiar deporte
+  window.selectSport = function (sport) {
+    console.log("Deporte seleccionado:", sport);
+    document.querySelectorAll(".sport-btn").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    document
+      .querySelector('[data-sport="' + sport + '"]')
+      .classList.add("active");
+  };
+
+  // Función toggleBetSlip
+  window.toggleBetSlip = function (show) {
+    console.log("Toggle BetSlip:", show);
+    const betSlipSidebar = document.querySelector(".sidebar-right");
+    if (!betSlipSidebar) {
+      console.error("❌ No se encontró .sidebar-right");
+      return;
+    }
+
+    if (show) {
+      betSlipSidebar.style.display = "block";
+      window.betSlipVisible = true;
+      setTimeout(() => {
+        betSlipSidebar.style.opacity = "1";
+        betSlipSidebar.style.transform = "translateX(0)";
+      }, 10);
+    } else {
+      betSlipSidebar.style.opacity = "0";
+      betSlipSidebar.style.transform = "translateX(20px)";
+      setTimeout(() => {
+        betSlipSidebar.style.display = "none";
+        window.betSlipVisible = false;
+      }, 300);
+    }
+  };
+
+  // Inicialización
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log(
+      "🚀 Dashboard cargado - BetSlip visible inicialmente:",
+      window.betSlipVisible,
+    );
+    window.toggleBetSlip(window.betSlipVisible);
+
+    // Array global para sincronización - REEMPLAZA el anterior
+    window.activeBets = [];
+
+    // ========== NUEVOS LISTENERS MEJORADOS ==========
+
+    // Manejar selección de odds - ACTUALIZADO
+    window.addEventListener("oddsSelected", (event) => {
+      console.log(
+        "🎯 Odds seleccionadas recibidas en dashboard:",
+        event.detail,
+      );
+
+      const newBet = {
+        ...event.detail,
+        id: `bet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      };
+
+      // Agregar a apuestas activas GLOBALES
+      window.activeBets.push(newBet);
+      console.log("📦 Apuestas activas globales:", window.activeBets);
+
+      // Sincronizar con BetSlip
+      window.dispatchEvent(
+        new CustomEvent("betslipUpdated", {
+          detail: { bets: window.activeBets },
+        }),
+      );
+
+      // Mostrar BetSlip si está oculto
+      if (!window.betSlipVisible) {
+        window.toggleBetSlip(true);
+      }
+    });
+
+    // Manejar eliminación de apuestas - ACTUALIZADO
+    window.addEventListener("betRemoved", (event) => {
+      const betId = event.detail.betId;
+      console.log("🗑️ Eliminando apuesta global:", betId);
+
+      window.activeBets = window.activeBets.filter((bet) => bet.id !== betId);
+      console.log("📦 Apuestas restantes:", window.activeBets.length);
+
+      // Sincronizar con BetSlip
+      window.dispatchEvent(
+        new CustomEvent("betslipUpdated", {
+          detail: { bets: window.activeBets },
+        }),
+      );
+
+      // Ocultar BetSlip si no hay apuestas
+      if (window.activeBets.length === 0 && window.betSlipVisible) {
+        setTimeout(() => {
+          window.toggleBetSlip(false);
+        }, 1000);
+      }
+    });
+
+    // Manejar actualización de stake - ACTUALIZADO
+    window.addEventListener("betStakeUpdated", (event) => {
+      const { betId, stake } = event.detail;
+      console.log("💰 Actualizando stake global:", betId, stake);
+
+      const bet = window.activeBets.find((bet) => bet.id === betId);
+      if (bet) {
+        bet.stake = parseInt(stake) || 0;
+        // Sincronizar con BetSlip
+        window.dispatchEvent(
+          new CustomEvent("betslipUpdated", {
+            detail: { bets: window.activeBets },
+          }),
+        );
+      }
+    });
+
+    // Manejar apuestas realizadas - ACTUALIZADO
+    window.addEventListener("betsPlaced", (event) => {
+      console.log("🎯 Procesando apuestas en dashboard:", event.detail);
+
+      // 1. Procesar apuestas (aquí iría tu lógica de store)
+      // bettingStore.processBets(event.detail.bets);
+
+      // 2. LIMPIAR estado global inmediatamente
+      window.activeBets = [];
+      console.log("🧹 Estado global limpiado después de apostar");
+
+      // 3. Sincronizar con todos los componentes
+      window.dispatchEvent(
+        new CustomEvent("betslipUpdated", {
+          detail: { bets: [] }, // Array vacío
+        }),
+      );
+
+      // 4. También disparar evento de limpieza
+      window.dispatchEvent(new CustomEvent("clearBetslip"));
+
+      // 5. Ocultar BetSlip después de un tiempo
+      setTimeout(() => {
+        if (window.betSlipVisible) {
+          window.toggleBetSlip(false);
+        }
+      }, 1500);
+    });
+
+    // Escuchar actualizaciones de estado del BetSlip
+    window.addEventListener("betslipStateUpdated", (event) => {
+      console.log("🔄 Estado del BetSlip actualizado:", event.detail);
+      // Mantener sincronizado con el estado global
+      window.activeBets = event.detail.bets || [];
+    });
+
+    // Escuchar limpieza del BetSlip
+    window.addEventListener("clearBetslip", () => {
+      console.log("🧹 Limpiando estado global por evento clearBetslip");
+      window.activeBets = [];
+    });
+
+    // ========== LISTENERS EXISTENTES (MANTENER PARA COMPATIBILIDAD) ==========
+
+    // Manejar eventos legacy del BetSlip (por si acaso)
+    window.addEventListener("removeBet", (event) => {
+      console.log("🗑️ Evento removeBet legacy:", event.detail);
+      // Redirigir al nuevo evento
+      window.dispatchEvent(
+        new CustomEvent("betRemoved", {
+          detail: event.detail,
+        }),
+      );
+    });
+
+    window.addEventListener("updateStake", (event) => {
+      console.log("💰 Evento updateStake legacy:", event.detail);
+      // Redirigir al nuevo evento
+      window.dispatchEvent(
+        new CustomEvent("betStakeUpdated", {
+          detail: event.detail,
+        }),
+      );
+    });
+
+    window.addEventListener("placeBets", (event) => {
+      console.log("🎯 Evento placeBets legacy:", event.detail);
+      // Redirigir al nuevo evento
+      window.dispatchEvent(
+        new CustomEvent("betsPlaced", {
+          detail: event.detail,
+        }),
+      );
+    });
+
+    // ========== EVENTOS DE SELECCIÓN (MANTENER) ==========
+
+    window.addEventListener("betSelection", function (event) {
+      console.log("🎯 EVENTO betSelection capturado:", event.detail);
+      if (!window.betSlipVisible) {
+        window.toggleBetSlip(true);
+      }
+    });
+
+    window.addEventListener("oddsSelected", function (event) {
+      console.log("🎯 EVENTO oddsSelected capturado:", event.detail);
+      if (!window.betSlipVisible) {
+        window.toggleBetSlip(true);
+      }
+    });
+
+    // Debug para clicks en odds
+    document.addEventListener("click", function (event) {
+      if (
+        event.target.closest(".odds-button") ||
+        event.target.closest(".odds")
+      ) {
+        console.log("🖱️ Click en odds detectado");
+        setTimeout(() => {
+          if (!window.betSlipVisible) {
+            console.log("🔧 Mostrando BetSlip por click en odds");
+            window.toggleBetSlip(true);
+          }
+        }, 100);
+      }
+    });
+
+    // ========== FUNCIONES DE DEBUGGING ==========
+
+    // Para debugging en consola
+    window.getGlobalBets = () => {
+      console.log("📊 Apuestas globales:", window.activeBets);
+      return window.activeBets;
+    };
+
+    window.clearGlobalBets = () => {
+      console.log("🧹 Limpiando apuestas globales manualmente");
+      window.activeBets = [];
+      window.dispatchEvent(
+        new CustomEvent("betslipUpdated", {
+          detail: { bets: [] },
+        }),
+      );
+      window.dispatchEvent(new CustomEvent("clearBetslip"));
+    };
+
+    window.forceBetSlipUpdate = () => {
+      console.log("🔄 Forzando actualización del BetSlip");
+      window.dispatchEvent(
+        new CustomEvent("betslipUpdated", {
+          detail: { bets: window.activeBets },
+        }),
+      );
+    };
+
+    console.log(
+      "✅ Todos los listeners del dashboard configurados correctamente",
+    );
+  });
+</script>
+
+<MainLayout title="Dashboard - BetSimulator">
+  <div class="dashboard">
+    <!-- Header del Dashboard -->
+    <header class="dashboard-header">
+      <div class="header-content">
+        <h1>Bienvenido {user?.name || "Usuario"}</h1>
+        <div class="header-stats">
+          <div class="stat-card">
+            <span class="stat-label">Balance</span>
+            <span class="stat-value"
+              >${user?.balance?.toLocaleString() || "0"}</span
+            >
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Apuestas Activas</span>
+            <span class="stat-value">{activeBets.length}</span>
+          </div>
+          <!-- Botón de debug -->
+          <div
+            class="stat-card"
+            style="cursor: pointer;"
+            onclick="debugShowBetSlip()"
+          >
+            <span class="stat-label">Apuestas Activas</span>
+            <span class="stat-value">👁️</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <!-- Sidebar Izquierda -->
+      <aside class="sidebar-left">
+        <nav class="sports-nav">
+          <h3>🏆 Deportes</h3>
+          <div class="sports-list">
+            {
+              serverSports.map((sport) => (
+                <button
+                  class={`sport-btn ${selectedSport === sport ? "active" : ""}`}
+                  onclick={`selectSport('${sport}')`}
+                  data-sport={sport}
+                >
+                  {sport.charAt(0).toUpperCase() + sport.slice(1)}
+                </button>
+              ))
+            }
+          </div>
+        </nav>
+        <UserStats stats={userStats} />
+      </aside>
+
+      <!-- Contenido Principal -->
+      <main class="main-content">
+        <section class="events-section">
+          <div class="section-header">
+            <h2>
+              Eventos Disponibles - {
+                selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)
+              }
+            </h2>
+            <div class="filters">
+              <button class="filter-btn active">Todos</button>
+              <button class="filter-btn">En Vivo</button>
+              <button class="filter-btn">Próximos</button>
+              <button class="filter-btn">Populares</button>
+            </div>
+          </div>
+          <SportsEvents sport={selectedSport} />
+        </section>
+
+      </main>
+
+      <!-- Sidebar Derecha - BetSlip -->
+      <aside
+        class="sidebar-right"
+        style:display={shouldShowBetSlip ? "block" : "none"}
+        style:opacity={shouldShowBetSlip ? "1" : "0"}
+      >
+        <BetSlip activeBets={activeBets} />
+      </aside>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .dashboard {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+    color: white;
+  }
+
+  .dashboard-header {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem 2rem;
+  }
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00ff88;
+  }
+
+  .dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 250px 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .sidebar-left {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .sports-nav {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
+  }
+
+  .sports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .sport-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+  }
+
+  .sport-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+  }
+
+  .sport-btn.active {
+    background: #00ff88;
+    color: #000;
+    border-color: #00ff88;
+  }
+
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .events-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .filter-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .filter-btn.active,
+  .filter-btn:hover {
+    background: #00ff88;
+    color: #000;
+  }
+
+  .quick-history {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .bet-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .event-name {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+
+  .bet-option {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .bet-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+
+  .bet-status.active {
+    background: #ffd700;
+    color: #000;
+  }
+
+  .bet-status.won {
+    background: #00ff88;
+    color: #000;
+  }
+
+  .bet-status.lost {
+    background: #ff4444;
+    color: white;
+  }
+
+  .bet-status.pending {
+    background: #888;
+    color: white;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    opacity: 0.6;
+  }
+
+  .sidebar-right {
+    position: sticky;
+    top: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateX(0);
+  }
+</style>

@@ -2,7 +2,7 @@
 
 // Estado inicial
 const initialState = {
-  balance: 10000,
+  balance: 1000000,
   username: 'Usuario Demo',
   level: 'Novato',
   avatar: '/images/avatar-default.png'

@@ -1,66 +1,469 @@
 ---
-// src/components/ui/Sidebar.astro
+// src/components/ui/Sidebar.astro - VERSIÓN MEJORADA
 ---
 
 <aside class="sidebar">
+  <!-- Header del Sidebar -->
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">🏆 Navegación</h2>
+    <div class="sidebar-actions">
+      <button class="action-btn" title="Buscar">
+        <span class="action-icon">🔍</span>
+      </button>
+      <button class="action-btn" title="Ajustes">
+        <span class="action-icon">⚙️</span>
+      </button>
+    </div>
+  </div>
+
   <nav class="sidebar-nav">
+    <!-- SECCIÓN DEPORTES MEJORADA -->
     <div class="nav-section">
-      <h3 class="section-title">Deportes</h3>
-      <a href="/deportes/futbol" class="nav-item">⚽ Fútbol</a>
-      <a href="/deportes/basket" class="nav-item">🏀 Baloncesto</a>
-      <a href="/deportes/tenis" class="nav-item">🎾 Tenis</a>
-      <a href="/deportes/boxeo" class="nav-item">🥊 Boxeo</a>
+      <div class="section-header">
+        <h3 class="section-title">🎯 Deportes</h3>
+        <span class="section-badge">5</span>
+      </div>
+      <div class="nav-items">
+        <a href="/deportes/futbol" class="nav-item active">
+          <span class="nav-icon">⚽</span>
+          <span class="nav-text">Fútbol</span>
+          <span class="nav-badge">12</span>
+        </a>
+        <a href="/deportes/basket" class="nav-item">
+          <span class="nav-icon">🏀</span>
+          <span class="nav-text">Baloncesto</span>
+          <span class="nav-badge">8</span>
+        </a>
+        <a href="/deportes/tenis" class="nav-item">
+          <span class="nav-icon">🎾</span>
+          <span class="nav-text">Tenis</span>
+          <span class="nav-badge">6</span>
+        </a>
+        <a href="/deportes/boxeo" class="nav-item">
+          <span class="nav-icon">🥊</span>
+          <span class="nav-text">Boxeo</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="/deportes/beisbol" class="nav-item">
+          <span class="nav-icon">⚾</span>
+          <span class="nav-text">Béisbol</span>
+          <span class="nav-badge">5</span>
+        </a>
+      </div>
     </div>
     
+    <!-- SECCIÓN CASINO MEJORADA -->
     <div class="nav-section">
-      <h3 class="section-title">Casino</h3>
-      <a href="/casino/slots" class="nav-item">🎰 Slots</a>
-      <a href="/casino/ruleta" class="nav-item">🎡 Ruleta</a>
-      <a href="/casino/blackjack" class="nav-item">♠️ Blackjack</a>
+      <div class="section-header">
+        <h3 class="section-title">🎰 Casino</h3>
+        <span class="section-badge">3</span>
+      </div>
+      <div class="nav-items">
+        <a href="/casino/slots" class="nav-item">
+          <span class="nav-icon">🎰</span>
+          <span class="nav-text">Slots</span>
+          <span class="nav-badge hot">Hot</span>
+        </a>
+        <a href="/casino/ruleta" class="nav-item">
+          <span class="nav-icon">🎡</span>
+          <span class="nav-text">Ruleta</span>
+          <span class="nav-badge">15</span>
+        </a>
+        <a href="/casino/blackjack" class="nav-item">
+          <span class="nav-icon">♠️</span>
+          <span class="nav-text">Blackjack</span>
+          <span class="nav-badge">9</span>
+        </a>
+      </div>
     </div>
     
+    <!-- SECCIÓN CUENTA MEJORADA -->
     <div class="nav-section">
-      <h3 class="section-title">Cuenta</h3>
-      <a href="/wallet" class="nav-item">💰 Billetera</a>
-      <a href="/perfil" class="nav-item">👤 Perfil</a>
-      <a href="/historial" class="nav-item">📊 Historial</a>
+      <div class="section-header">
+        <h3 class="section-title">👤 Mi Cuenta</h3>
+      </div>
+      <div class="nav-items">
+        <a href="/wallet" class="nav-item">
+          <span class="nav-icon">💰</span>
+          <span class="nav-text">Billetera</span>
+          <span class="nav-indicator"></span>
+        </a>
+        <a href="/perfil" class="nav-item">
+          <span class="nav-icon">👤</span>
+          <span class="nav-text">Perfil</span>
+        </a>
+        <a href="/historial" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Historial</span>
+          <span class="nav-badge">24</span>
+        </a>
+        <a href="/promociones" class="nav-item">
+          <span class="nav-icon">🎁</span>
+          <span class="nav-text">Promociones</span>
+          <span class="nav-badge new">New</span>
+        </a>
+      </div>
     </div>
   </nav>
 </aside>
 
 <style>
   .sidebar {
-    width: 250px;
-    background: #1a1a1a;
-    padding: 2rem 1rem;
+    width: 400px; /* Más ancho */
+    background: linear-gradient(180deg, #1a2d3b 0%, #0f1a24 100%);
+    padding: 1.5rem 0;
     height: calc(100vh - 80px);
     position: sticky;
     top: 80px;
+    border-right: 2px solid #00c853;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
   }
-  
+
+  /* HEADER DEL SIDEBAR */
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-title {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(45deg, #00c8ff, #00e5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sidebar-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .action-btn:hover {
+    background: #00c8ff;
+    transform: scale(1.1);
+  }
+
+  /* SECCIONES DE NAVEGACIÓN */
+  .sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 1rem;
+  }
+
   .nav-section {
     margin-bottom: 2rem;
   }
-  
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
   .section-title {
-    color: #00c853;
+    color: #00c8ff;
     font-size: 0.9rem;
     text-transform: uppercase;
-    margin-bottom: 1rem;
-    padding-left: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin: 0;
   }
-  
-  .nav-item {
-    display: block;
+
+  .section-badge {
+    background: #00c853;
     color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* ITEMS DE NAVEGACIÓN MEJORADOS */
+  .nav-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    color: #e0e0e0;
     text-decoration: none;
     padding: 0.75rem 1rem;
-    border-radius: 6px;
-    margin-bottom: 0.25rem;
-    transition: background 0.3s;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
   }
-  
+
   .nav-item:hover {
+    background: rgba(0, 200, 255, 0.1);
+    border-color: #00c8ff;
+    transform: translateX(5px);
+    color: white;
+  }
+
+  .nav-item.active {
+    background: linear-gradient(135deg, #00c8ff, #0099cc);
+    border-color: #00c8ff;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);
+  }
+
+  .nav-icon {
+    font-size: 1.2rem;
+    margin-right: 0.75rem;
+    width: 24px;
+    text-align: center;
+  }
+
+  .nav-text {
+    flex: 1;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .nav-badge {
     background: #333;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .nav-badge.hot {
+    background: #ff4444;
+  }
+
+  .nav-badge.new {
+    background: #00c853;
+  }
+
+  .nav-indicator {
+    width: 6px;
+    height: 6px;
+    background: #00c8ff;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  /* ESTADÍSTICAS RÁPIDAS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .stat-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 0.7rem;
+    color: #a0a0a0;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #00c8ff;
+  }
+
+  .stat-value.success {
+    color: #00c853;
+  }
+
+  /* FOOTER DEL SIDEBAR */
+  .sidebar-footer {
+    padding: 1.5rem 1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+  }
+
+  .user-quickview {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .user-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #00c8ff;
+  }
+
+  .user-details {
+    flex: 1;
+  }
+
+  .user-name {
+    display: block;
+    font-weight: 600;
+    color: white;
+    font-size: 0.9rem;
+  }
+
+  .user-level {
+    display: block;
+    font-size: 0.75rem;
+    color: #00c8ff;
+  }
+
+  .logout-btn {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+    font-weight: 500;
+  }
+
+  .logout-btn:hover {
+    background: rgba(255, 68, 68, 0.2);
+    border-color: #ff4444;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* ANIMACIONES */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* SCROLLBAR PERSONALIZADO */
+  .sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-nav::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .sidebar-nav::-webkit-scrollbar-thumb {
+    background: #00c8ff;
+    border-radius: 2px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .sidebar {
+      width: 280px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: static;
+    }
   }
 </style>
+
+<script>
+  // Funcionalidades del sidebar
+  document.addEventListener('DOMContentLoaded', function() {
+    // Efectos hover mejorados
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+      item.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateX(8px)';
+      });
+      
+      item.addEventListener('mouseleave', function() {
+        if (!this.classList.contains('active')) {
+          this.style.transform = 'translateX(0)';
+        }
+      });
+    });
+
+    // Simular notificaciones en tiempo real
+    function updateLiveBadges() {
+      const badges = document.querySelectorAll('.nav-badge:not(.hot):not(.new)');
+      badges.forEach(badge => {
+        const current = parseInt(badge.textContent);
+        if (current > 0 && Math.random() > 0.7) {
+          badge.textContent = current + 1;
+          badge.style.animation = 'pulse 0.5s ease-in-out';
+          setTimeout(() => {
+            badge.style.animation = '';
+          }, 500);
+        }
+      });
+    }
+
+    // Actualizar badges cada 10 segundos
+    setInterval(updateLiveBadges, 10000);
+
+    // Botones de acción
+    const actionBtns = document.querySelectorAll('.action-btn');
+    actionBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    });
+
+    // Logout button
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function() {
+        if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+          console.log('Cerrando sesión...');
+          // Aquí iría la lógica de logout
+        }
+      });
+    }
+  });
+</script>

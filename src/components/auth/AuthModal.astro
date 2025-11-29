@@ -1,0 +1,156 @@
+---
+// src/components/auth/AuthModal.astro
+import LoginForm from './LoginForm.astro';
+import RegisterForm from './RegisterForm.astro';
+
+export interface Props {
+  isOpen: boolean;
+  mode: 'login' | 'register';
+  onClose: () => void;
+}
+
+const { isOpen, mode = 'login', onClose } = Astro.props;
+---
+
+{isOpen && (
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}</h2>
+        <button class="close-button" onclick={onClose} aria-label="Cerrar modal">
+          &times;
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        {mode === 'login' ? <LoginForm /> : <RegisterForm />}
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    max-width: 90vw;
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1.5rem;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+  }
+
+  .close-button:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .modal-body {
+    padding: 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideIn {
+    from { 
+      opacity: 0;
+      transform: scale(0.9) translateY(-20px);
+    }
+    to { 
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .modal-content {
+      margin: 1rem;
+      max-width: calc(100vw - 2rem);
+    }
+    
+    .modal-header {
+      padding: 1rem 1rem 0;
+      padding-bottom: 1rem;
+    }
+  }
+</style>
+
+<script>
+  // Cerrar modal al hacer click fuera del contenido
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('authModal');
+    
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          // Llamar a la función onClose pasada como prop
+          if (typeof window.closeAuthModal === 'function') {
+            window.closeAuthModal();
+          }
+        }
+      });
+    }
+    
+    // Cerrar con tecla Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (typeof window.closeAuthModal === 'function') {
+          window.closeAuthModal();
+        }
+      }
+    });
+  });
+</script>

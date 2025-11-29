@@ -1,0 +1,216 @@
+---
+// src/components/features/SportsEvents.astro
+const { sport = 'fútbol' } = Astro.props;
+
+// Datos de ejemplo - en tu caso vendrían del store
+const events = [
+  {
+    id: '1',
+    league: 'Liga BetPlay',
+    time: '20:00',
+    teamA: 'Deportes Tolima',
+    teamB: 'Independiente Santa Fe',
+    odds: {
+      teamA: 2.00,
+      draw: 3.20,
+      teamB: 3.50
+    }
+  },
+  {
+    id: '2', 
+    league: 'Liga BetPlay',
+    time: '22:00',
+    teamA: 'Millonarios',
+    teamB: 'Atlético Nacional',
+    odds: {
+      teamA: 2.30,
+      draw: 3.00,
+      teamB: 2.80
+    }
+  }
+];
+---
+
+<div class="sports-events">
+  {events.map(event => (
+    <div class="event-card">
+      <div class="event-header">
+        <span class="league">{event.league}</span>
+        <span class="time">{event.time}</span>
+      </div>
+      
+      <div class="teams">
+        <div class="team">
+          <span class="team-name">{event.teamA}</span>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <span class="team-name">{event.teamB}</span>
+        </div>
+      </div>
+
+      <div class="odds-container">
+        <button 
+          class="odds-button" 
+          onclick={`selectOdd('${event.id}', '${event.teamA}', ${event.odds.teamA}, '1')`}
+        >
+          <span class="option">{event.teamA}</span>
+          <span class="odds">{event.odds.teamA}</span>
+        </button>
+        
+        <button 
+          class="odds-button" 
+          onclick={`selectOdd('${event.id}', 'Empate', ${event.odds.draw}, 'X')`}
+        >
+          <span class="option">Empate</span>
+          <span class="odds">{event.odds.draw}</span>
+        </button>
+        
+        <button 
+          class="odds-button" 
+          onclick={`selectOdd('${event.id}', '${event.teamB}', ${event.odds.teamB}, '2')`}
+        >
+          <span class="option">{event.teamB}</span>
+          <span class="odds">{event.odds.teamB}</span>
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
+<script>
+// Función para seleccionar una cuota
+window.selectOdd = function(eventId, option, odds, type) {
+  console.log('🎯 Cuota seleccionada:', { eventId, option, odds, type });
+  
+  // Crear objeto de apuesta
+  const bet = {
+    id: `${eventId}-${type}-${Date.now()}`,
+    eventId: eventId,
+    eventName: `${getTeamNames(eventId, type)}`,
+    option: option,
+    odds: odds,
+    type: 'Sencilla',
+    stake: 5000, // Valor por defecto
+    timestamp: Date.now()
+  };
+  
+  // Disparar evento personalizado
+  window.dispatchEvent(new CustomEvent('oddsSelected', {
+    detail: bet
+  }));
+  
+  // También disparar evento genérico de selección
+  window.dispatchEvent(new CustomEvent('betSelection', {
+    detail: bet
+  }));
+};
+
+// Función helper para obtener nombres de equipos
+function getTeamNames(eventId, type) {
+  // En una implementación real, esto vendría de los datos del evento
+  const eventMap = {
+    '1': { teamA: 'Deportes Tolima', teamB: 'Independiente Santa Fe' },
+    '2': { teamA: 'Millonarios', teamB: 'Atlético Nacional' }
+  };
+  
+  const event = eventMap[eventId];
+  if (!event) return 'Partido Desconocido';
+  
+  return `${event.teamA} vs ${event.teamB}`;
+}
+</script>
+
+<style>
+.sports-events {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.event-card:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.team {
+  flex: 1;
+  text-align: center;
+}
+
+.team-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.vs {
+  padding: 0 1rem;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+.odds-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.odds-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem 0.5rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.odds-button:hover {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: #00ff88;
+  transform: translateY(-2px);
+}
+
+.odds-button:active {
+  transform: translateY(0);
+}
+
+.option {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.odds {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #00ff88;
+}
+</style>

@@ -1,0 +1,83 @@
+---
+// src/pages/auth/login.astro
+import MainLayout from '../../layouts/MainLayout.astro';
+import LoginForm from '../../components/auth/LoginForm.astro';
+---
+
+<MainLayout title="Iniciar Sesión - BetSimulator">
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Iniciar Sesión</h1>
+        <p>Accede a tu cuenta de BetSimulator</p>
+      </div>
+      
+      <LoginForm />
+      
+      <div class="auth-footer">
+        <p>
+          ¿Problemas para iniciar sesión? 
+          <a href="/contacto" class="link">Contáctanos</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .auth-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1f2c 0%, #2d3748 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .auth-container {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-header h1 {
+    color: #1a1f2c;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+  }
+
+  .auth-header p {
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .auth-footer p {
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .link {
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .link:hover {
+    text-decoration: underline;
+  }
+</style>

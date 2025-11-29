@@ -1,0 +1,340 @@
+---
+// src/components/auth/RegisterForm.astro
+---
+
+<div class="register-form">
+  <h2>Crear Cuenta</h2>
+  <form id="registerForm" class="auth-form">
+    <div class="form-group">
+      <label for="name">Nombre Completo</label>
+      <input type="text" id="name" name="name" required class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required class="form-input" />
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" required class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirmar Contraseña</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required class="form-input" />
+    </div>
+
+    <button type="submit" class="btn-primary" id="submitBtn">
+      Crear Cuenta
+    </button>
+  </form>
+
+  <div class="auth-links">
+    <p>¿Ya tienes cuenta? <a href="/auth/login" class="auth-link">Inicia sesión aquí</a></p>
+  </div>
+</div>
+
+<style>
+  /* Tus estilos actuales del RegisterForm */
+  <style>
+  /* Mantener los mismos estilos del RegisterForm anterior */
+  .register-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  h2 {
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-weight: 500;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #00c853;
+    box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.1);
+  }
+
+  .form-hint {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-weight: normal;
+    gap: 0.75rem;
+  }
+
+  .checkbox-label input {
+    display: none;
+  }
+
+  .checkmark {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+  }
+
+  .checkbox-label input:checked + .checkmark {
+    background: #00c853;
+    border-color: #00c853;
+  }
+
+  .checkbox-label input:checked + .checkmark::after {
+    content: "✓";
+    color: white;
+    font-size: 0.875rem;
+  }
+
+  .terms {
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .text-link {
+    color: #00c853;
+    text-decoration: none;
+  }
+
+  .text-link:hover {
+    text-decoration: underline;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #00c853 0%, #64dd17 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+    position: relative;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.4);
+  }
+
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .auth-link {
+    color: #00c853;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .auth-link:hover {
+    text-decoration: underline;
+  }
+
+  .welcome-bonus {
+    margin-top: 1.5rem;
+  }
+
+  .bonus-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 0.5rem;
+  }
+
+  .bonus-icon {
+    font-size: 1.5rem;
+  }
+
+  .bonus-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bonus-text strong {
+    color: #92400e;
+    font-size: 0.875rem;
+  }
+
+  .bonus-text span {
+    color: #b45309;
+    font-size: 0.75rem;
+  }
+
+  .result-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .result-message.success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+  }
+
+  .result-message.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+  }
+</style>
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const form = document.getElementById('registerForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = form.name.value;
+      const email = form.email.value;
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
+      
+      // Validaciones
+      if (!name || !email || !password || !confirmPassword) {
+        alert('Por favor completa todos los campos');
+        return;
+      }
+      
+      if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+      
+      // Mostrar loading
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creando cuenta...';
+      
+      try {
+        console.log('Registrando usuario:', email);
+        
+        // Cargar Supabase
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+        const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // 1. Registrar usuario en Auth
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (authError) {
+          throw new Error(authError.message);
+        }
+
+        if (authData.user) {
+          console.log('Usuario creado en Auth:', authData.user.id);
+          
+          // 2. Crear registro en tabla users
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .insert([
+              {
+                id: authData.user.id,
+                name: name,
+                email: email,
+                balance: 1000000,
+                level: 'Novato'
+              }
+            ])
+            .select()
+            .single();
+
+          if (userError) {
+            throw new Error('Error creando perfil: ' + userError.message);
+          }
+
+          alert('¡Cuenta creada exitosamente! Ya puedes iniciar sesión.');
+          setTimeout(() => {
+            window.location.href = '/auth/login';
+          }, 1500);
+        }
+      } catch (error) {
+        console.error('Error en registro:', error);
+        alert('Error: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crear Cuenta';
+      }
+    });
+  });
+</script>
